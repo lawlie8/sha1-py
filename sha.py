@@ -64,7 +64,7 @@ class SHA_CLASS(operators):
             #print(args.file)
             file_hash = open(args.file,'r')
             self.input_string = file_hash.read()
-            print(self.input_string)
+            #print(self.input_string)
             file_hash.close()
         elif args.string:
             self.input_string = args.string
