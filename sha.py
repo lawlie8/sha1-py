@@ -61,11 +61,7 @@ class SHA_CLASS(operators):
             self.binary_list.append(format(ord(x),'08b'))
         '''some variable initilisation'''
 
-        self.h0 = '01100111010001010010001100000001'
-        self.h1 = '11101111110011011010101110001001'
-        self.h2 = '10011000101110101101110011111110'
-        self.h3 = '00010000001100100101010001110110'
-        self.h4 = '11000011110100101110000111110000'
+
         '''hex of first 5 prime no
         self.h0=0x67452301
         self.h1=0xEFCDAB89
@@ -82,9 +78,14 @@ class SHA_CLASS(operators):
         ml = format(len(self.binary_list)*8,'064b')
         self.padded_string = self.binary_string+ml
         self.chunk_of_512 = list(map(''.join,zip(*[iter(self.padded_string)]*512)))
-
+        print(len(self.chunk_of_512[1]))
     def divide_into_16(self):
 
+        self.h0 = '01100111010001010010001100000001'
+        self.h1 = '11101111110011011010101110001001'
+        self.h2 = '10011000101110101101110011111110'
+        self.h3 = '00010000001100100101010001110110'
+        self.h4 = '11000011110100101110000111110000'
 
 
         for chunk_iter in self.chunk_of_512:
@@ -96,8 +97,10 @@ class SHA_CLASS(operators):
             e = self.h4
 
             w = list(map(''.join,zip(*[iter(chunk_iter)]*32)))
+
             f_f_f = '11111111111111111111111111111111'
-            #or i in range(16,80):
+
+            #for j in range(0,len(self.chunk_of_512)):
             for i in range(16, 80):
                 w.append("") #causes indexError if removed so like you know don't remove!
                 w[i] = operators.left_rotate(operators._xor(operators._xor(operators._xor(w[i - 3] , w[i - 8]) , w[i - 14]) , w[i - 16]), 1)
@@ -105,10 +108,9 @@ class SHA_CLASS(operators):
             for i in range(0,80):
                 #print(i)
                 if 0 <= i <=19:
-                    f = operators._xor(d,operators._and(b,operators._xor(c,d)))
-                    #f = operators._or(operators._and(b,c),operators._and(operators._not(b),d))
+                    #f = operators._xor(d,operators._and(b,operators._xor(c,d)))
+                    f = operators._or(operators._and(b,c),operators._and(operators._not(b),d))
                     k = '1011010100000100111100110011001'
-
                 if 20 <= i <=39:
                     f = operators._xor(b,operators._xor(c,d))
                     k = '1101110110110011110101110100001'
@@ -126,20 +128,17 @@ class SHA_CLASS(operators):
                 temp = operators.truncate(temp,32)
                 b,c,d,e=(a,operators.left_rotate(b,30),c,d)
                 a = temp
-        self.h0 = bin(int(self.h0,2) + int(a,2))[2:]
-        self.h1 = bin(int(self.h1,2) + int(b,2))[2:]
-        self.h2 = bin(int(self.h2,2) + int(c,2))[2:]
-        self.h3 = bin(int(self.h3,2) + int(d,2))[2:]
-        self.h4 = bin(int(self.h4,2) + int(e,2))[2:]
-        
+
+            self.h0 = operators.truncate(bin(int(self.h0,2) + int(a,2))[2:],32)
+            self.h1 = operators.truncate(bin(int(self.h1,2) + int(b,2))[2:],32)
+            self.h2 = operators.truncate(bin(int(self.h2,2) + int(c,2))[2:],32)
+            self.h3 = operators.truncate(bin(int(self.h3,2) + int(d,2))[2:],32)
+            self.h4 = operators.truncate(bin(int(self.h4,2) + int(e,2))[2:],32)
+
         hh = hex(int(self.h0,2))[2:] + hex(int(self.h1,2))[2:] + hex(int(self.h2,2))[2:] + hex(int(self.h3,2))[2:]+ hex(int(self.h4,2))[2:]
 
-        print(hh)
-
-
-
-
-
+        #print(len('0098ba824b5c16427bd7a1122a5a442a25ec644d'))
+        print(hh+'--'+str(len(hh)))
 
 o = SHA_CLASS()
 o.padding()
