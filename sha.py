@@ -137,8 +137,8 @@ class SHA_CLASS(operators):
 
         hh = hex(int(self.h0,2))[2:] + hex(int(self.h1,2))[2:] + hex(int(self.h2,2))[2:] + hex(int(self.h3,2))[2:]+ hex(int(self.h4,2))[2:]
 
-        #print(len('0098ba824b5c16427bd7a1122a5a442a25ec644d'))
-        print(hh+'--'+str(len(hh)))
+
+        print(hh)
 
 o = SHA_CLASS()
 o.padding()
