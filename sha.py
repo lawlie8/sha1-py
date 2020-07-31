@@ -4,7 +4,7 @@ import sys
 
 class operators():
     def truncate(data,leng):
-        #print(str(data))
+
         while (len(data) > leng):
             data = data[1:]
 
@@ -54,31 +54,38 @@ class operators():
         return n[nl:] + n[:nl]
 class SHA_CLASS(operators):
     def __init__(self):
-        self.input_string = sys.argv[1]
+        import argparse
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-f','--file',help='add -f file.txt\nto calculate the hash of that file\neg. sha.py -f file.txt')
+        parser.add_argument('-s','--string')
+
+        args = parser.parse_args()
+        if args.file:
+            #print(args.file)
+            file_hash = open(args.file,'r')
+            self.input_string = file_hash.read()
+            print(self.input_string)
+            file_hash.close()
+        elif args.string:
+            self.input_string = args.string
         ascii_list = []
         self.binary_list = []
         for x in self.input_string:
             self.binary_list.append(format(ord(x),'08b'))
-        '''some variable initilisation'''
 
+    def padding(self): #problem with padding of string doesn't accept more than 56 char
 
-        '''hex of first 5 prime no
-        self.h0=0x67452301
-        self.h1=0xEFCDAB89
-        self.h2=0x98BADCFE
-        self.h3=0x10325476
-        self.h4=0xC3D2E1F0
-        '''
-    def padding(self):
         self.binary_string = ''.join(self.binary_list)
         chunk_no = len(self.binary_string) % 512
+        #print(chunk_no)
         self.binary_string = self.binary_string +'1'
         for i in range(chunk_no+1,448):
             self.binary_string+='0'
         ml = format(len(self.binary_list)*8,'064b')
         self.padded_string = self.binary_string+ml
+        #print(len(self.padded_string))
         self.chunk_of_512 = list(map(''.join,zip(*[iter(self.padded_string)]*512)))
-        print(len(self.chunk_of_512[1]))
+        #print(len(self.chunk_of_512[0]))
     def divide_into_16(self):
 
         self.h0 = '01100111010001010010001100000001'
@@ -95,12 +102,10 @@ class SHA_CLASS(operators):
             c = self.h2
             d = self.h3
             e = self.h4
-
             w = list(map(''.join,zip(*[iter(chunk_iter)]*32)))
 
             f_f_f = '11111111111111111111111111111111'
 
-            #for j in range(0,len(self.chunk_of_512)):
             for i in range(16, 80):
                 w.append("") #causes indexError if removed so like you know don't remove!
                 w[i] = operators.left_rotate(operators._xor(operators._xor(operators._xor(w[i - 3] , w[i - 8]) , w[i - 14]) , w[i - 16]), 1)
@@ -129,6 +134,7 @@ class SHA_CLASS(operators):
                 b,c,d,e=(a,operators.left_rotate(b,30),c,d)
                 a = temp
 
+
             self.h0 = operators.truncate(bin(int(self.h0,2) + int(a,2))[2:],32)
             self.h1 = operators.truncate(bin(int(self.h1,2) + int(b,2))[2:],32)
             self.h2 = operators.truncate(bin(int(self.h2,2) + int(c,2))[2:],32)
@@ -136,9 +142,8 @@ class SHA_CLASS(operators):
             self.h4 = operators.truncate(bin(int(self.h4,2) + int(e,2))[2:],32)
 
         hh = hex(int(self.h0,2))[2:] + hex(int(self.h1,2))[2:] + hex(int(self.h2,2))[2:] + hex(int(self.h3,2))[2:]+ hex(int(self.h4,2))[2:]
-
-
         print(hh)
+
 
 o = SHA_CLASS()
 o.padding()
