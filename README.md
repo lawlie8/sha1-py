@@ -1,4 +1,4 @@
 # sha1-py
 sha1 implementation in python.
-# Usage
-sha.py "string to get hash of"
+## Usage
+eg. sha.py -s "string to get hash of"
