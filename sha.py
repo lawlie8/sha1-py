@@ -4,6 +4,9 @@ import sys
 
 class operators():
     def truncate(data,leng):
+        if len(data) <= 32:
+            while (len(data)<leng ):
+                data = '0' + data
 
         while (len(data) > leng):
             data = data[1:]
@@ -18,6 +21,8 @@ class operators():
             else:
                 return_string += '1'
         return return_string
+
+
     def _and(a_a,b_b):
         return_string = ""
         for x_a,x_b in zip(a_a,b_b):
@@ -30,6 +35,8 @@ class operators():
             if x_a == '0' and x_b == '1':
                 return_string += '0'
         return return_string
+
+
     def _or(a_a,b_b):
         return_string = ""
         for x_a,x_b in zip(a_a,b_b):
@@ -42,6 +49,8 @@ class operators():
             if x_a == '0' and x_b == '0':
                 return_string+='0'
         return return_string
+
+
     def _not(a_a):
         return_string=""
         for x_a in a_a:
@@ -50,8 +59,12 @@ class operators():
             else:
                 return_string+='1'
         return return_string
+
+
     def left_rotate(n,nl):
         return n[nl:] + n[:nl]
+
+
 class SHA_CLASS(operators):
     def __init__(self):
         import argparse
@@ -62,30 +75,35 @@ class SHA_CLASS(operators):
         args = parser.parse_args()
         if args.file:
             #print(args.file)
-            file_hash = open(args.file,'r')
+            file_hash = open(args.file,'rb')
             self.input_string = file_hash.read()
-            #print(self.input_string)
+            self.input_string = str(self.input_string)[2:-1]
+
             file_hash.close()
         elif args.string:
-            self.input_string = args.string
+            self.input_string = args.string  #asfasc
         ascii_list = []
         self.binary_list = []
         for x in self.input_string:
             self.binary_list.append(format(ord(x),'08b'))
 
-    def padding(self): #problem with padding of string doesn't accept more than 56 char
-
+    def padding(self):
         self.binary_string = ''.join(self.binary_list)
         chunk_no = len(self.binary_string) % 512
-        #print(chunk_no)
+        chunk_no_2 = len(self.binary_string) % 448
+
+        zero_bits= (447-len(self.binary_string)%512 + 512)%512
+
         self.binary_string = self.binary_string +'1'
-        for i in range(chunk_no+1,448):
+        for i in range(0,zero_bits):
             self.binary_string+='0'
+
         ml = format(len(self.binary_list)*8,'064b')
         self.padded_string = self.binary_string+ml
-        #print(len(self.padded_string))
+        self.padded_string = self.padded_string.replace(' ','')
+        
         self.chunk_of_512 = list(map(''.join,zip(*[iter(self.padded_string)]*512)))
-        #print(len(self.chunk_of_512[0]))
+
     def divide_into_16(self):
 
         self.h0 = '01100111010001010010001100000001'
@@ -102,6 +120,7 @@ class SHA_CLASS(operators):
             c = self.h2
             d = self.h3
             e = self.h4
+
             w = list(map(''.join,zip(*[iter(chunk_iter)]*32)))
 
             f_f_f = '11111111111111111111111111111111'
@@ -111,7 +130,7 @@ class SHA_CLASS(operators):
                 w[i] = operators.left_rotate(operators._xor(operators._xor(operators._xor(w[i - 3] , w[i - 8]) , w[i - 14]) , w[i - 16]), 1)
 
             for i in range(0,80):
-                #print(i)
+
                 if 0 <= i <=19:
                     #f = operators._xor(d,operators._and(b,operators._xor(c,d)))
                     f = operators._or(operators._and(b,c),operators._and(operators._not(b),d))
@@ -142,6 +161,7 @@ class SHA_CLASS(operators):
             self.h4 = operators.truncate(bin(int(self.h4,2) + int(e,2))[2:],32)
 
         hh = hex(int(self.h0,2))[2:] + hex(int(self.h1,2))[2:] + hex(int(self.h2,2))[2:] + hex(int(self.h3,2))[2:]+ hex(int(self.h4,2))[2:]
+
         print(hh)
 
 
