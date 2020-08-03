@@ -2,17 +2,12 @@ import sys
 
 class operators():
     def truncate(data,leng):
-        #print(data)
-
         if len(data) < 32:
-
             while (len(data) < leng ):
                 data =  '0' + data
-
         elif len(data)>32:
             while (len(data) > leng):
                 data = data[1:]
-
         return data
 
     def _xor(a_a,b_b):
@@ -73,35 +68,47 @@ class SHA_CLASS(operators):
         parser = argparse.ArgumentParser()
         parser.add_argument('-f','--file',help='add -f filename\nto calculate the hash of that file\neg. sha.py -f file.txt')
         parser.add_argument('-s','--string')
-
         args = parser.parse_args()
         if args.file:
-            '''FILE HASH DOESN'T GIVE FILE HASH  FORMATTING ERROR PROBABLY'''
+            '''FILE HASH DOESN'T GIVE FILE HASH, FORMATTING ERROR PROBABLY'''
             file_hash = open(args.file,'rb')
             self.input_string = file_hash.read()
-            self.input_string = str(self.input_string.decode('ascii'))#[2:-1].replace(r'\r\n',r'\n')
-            #print(self.input_string)
+            try:
+
+                self.input_string = str(self.input_string.decode('utf-8'))
+                self.binary_list = []
+                for x in self.input_string:
+                    self.binary_list.append(format(ord(x),'08b'))
+            except:
+                import hashlib
+                sha1 = hashlib.sha1()
+                BUF_SIZE = 65536
+                with open(args.file, 'rb') as f:
+                    while True:
+                        data = f.read(BUF_SIZE)
+                        if not data:
+                            break
+                        sha1.update(data)
+
+                print("File Hash: {0}".format(sha1.hexdigest()))
+                exit()
+
             file_hash.close()
         elif args.string:
             self.input_string = args.string  #asfasc
-        ascii_list = []
-        self.binary_list = []
-        for x in self.input_string:
-            self.binary_list.append(format(ord(x),'08b'))
-
+            self.binary_list = []
+            for x in self.input_string:
+                self.binary_list.append(format(ord(x),'08b'))
     def padding(self):
         self.binary_string = ''.join(self.binary_list)
         chunk_no = len(self.binary_string) % 512
         zero_bits= (447-len(self.binary_string)%512 + 512)%512
-
         self.binary_string = self.binary_string +'1'
         for i in range(0,zero_bits):
             self.binary_string+='0'
-
         ml = format(len(self.binary_list)*8,'064b')
         self.padded_string = self.binary_string+ml
         self.padded_string = self.padded_string.replace(' ','')
-
         self.chunk_of_512 = list(map(''.join,zip(*[iter(self.padded_string)]*512)))
     def divide_into_16(self):
         '''nothing up my sleeve numbers'''
@@ -113,23 +120,17 @@ class SHA_CLASS(operators):
 
 
         for chunk_iter in self.chunk_of_512:
-
             a = self.h0
             b = self.h1
             c = self.h2
             d = self.h3
             e = self.h4
-
             w = list(map(''.join,zip(*[iter(chunk_iter)]*32)))
-
             f_f_f = '11111111111111111111111111111111'
-
             for i in range(16, 80):
                 w.append("") #causes indexError if removed so like you know don't remove!
                 w[i] = operators.left_rotate(operators._xor(operators._xor(operators._xor(w[i - 3] , w[i - 8]) , w[i - 14]) , w[i - 16]), 1)
-
             for i in range(0,80):
-
                 if 0 <= i <=19:
                     #f = operators._xor(d,operators._and(b,operators._xor(c,d)))
                     f = operators._or(operators._and(b,c),operators._and(operators._not(b),d))
@@ -149,7 +150,6 @@ class SHA_CLASS(operators):
                 b,c,d,e=(a,operators.left_rotate(b,30),c,d)
                 a = temp
 
-
             self.h0 = operators.truncate(bin(int(self.h0,2) + int(a,2))[2:],32)
             self.h1 = operators.truncate(bin(int(self.h1,2) + int(b,2))[2:],32)
             self.h2 = operators.truncate(bin(int(self.h2,2) + int(c,2))[2:],32)
@@ -164,7 +164,6 @@ class SHA_CLASS(operators):
                 hash += length_car
 
         print(hash) #Final Hash Output
-
 
 o = SHA_CLASS()
 o.padding()
