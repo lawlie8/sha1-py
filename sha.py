@@ -1,7 +1,5 @@
 import sys
 
-
-
 class operators():
     def truncate(data,leng):
         #print(data)
@@ -73,16 +71,16 @@ class SHA_CLASS(operators):
     def __init__(self):
         import argparse
         parser = argparse.ArgumentParser()
-        parser.add_argument('-f','--file',help='add -f file.txt\nto calculate the hash of that file\neg. sha.py -f file.txt')
+        parser.add_argument('-f','--file',help='add -f filename\nto calculate the hash of that file\neg. sha.py -f file.txt')
         parser.add_argument('-s','--string')
 
         args = parser.parse_args()
         if args.file:
-            #print(args.file)
+            '''FILE HASH DOESN'T GIVE FILE HASH  FORMATTING ERROR PROBABLY'''
             file_hash = open(args.file,'rb')
             self.input_string = file_hash.read()
-            self.input_string = str(self.input_string)[2:-1]
-
+            self.input_string = str(self.input_string.decode('ascii'))#[2:-1].replace(r'\r\n',r'\n')
+            #print(self.input_string)
             file_hash.close()
         elif args.string:
             self.input_string = args.string  #asfasc
@@ -105,9 +103,8 @@ class SHA_CLASS(operators):
         self.padded_string = self.padded_string.replace(' ','')
 
         self.chunk_of_512 = list(map(''.join,zip(*[iter(self.padded_string)]*512)))
-        #print(len(self.padded_string))
     def divide_into_16(self):
-
+        '''nothing up my sleeve numbers'''
         self.h0 = '01100111010001010010001100000001'
         self.h1 = '11101111110011011010101110001001'
         self.h2 = '10011000101110101101110011111110'
@@ -136,28 +133,19 @@ class SHA_CLASS(operators):
                 if 0 <= i <=19:
                     #f = operators._xor(d,operators._and(b,operators._xor(c,d)))
                     f = operators._or(operators._and(b,c),operators._and(operators._not(b),d))
-                    #k = '1011010100000100111100110011001'
                     k  = '01011010100000100111100110011001'
                 if 20 <= i <=39:
                     f = operators._xor(b,operators._xor(c,d))
-                    #k = '1101110110110011110101110100001'
                     k = '01101110110110011110101110100001'
-                    #print(i)
                 if 40 <= i <=59:
                     f = operators._or(operators._and(b,c),operators._or(operators._and(b,d),operators._and(c,d)))
-                    #k = '10001111000110111011110011011100'
                     k =  '10001111000110111011110011011100'
                 if 60 <= i <= 79:
                     f = operators._xor(b,operators._xor(c,d))
-                    #k = '11001010011000101100000111010110'
                     k =  '11001010011000101100000111010110'
                 temp = int(operators.left_rotate(a,5),2) + int(f,2) + int(e,2) + int(k,2) + int(w[i],2)
-
                 temp = str(bin(temp))
-                #temp = str(format(temp,'32b'))
                 temp = operators.truncate(temp,32)
-
-
                 b,c,d,e=(a,operators.left_rotate(b,30),c,d)
                 a = temp
 
@@ -171,14 +159,11 @@ class SHA_CLASS(operators):
             hash=''
             for i_i in self_list:
                 length_car = hex(int(i_i,2))[2:]
-                #print(length_car)
-                if len(length_car) == 7:
+                while len(length_car) <= 7:
                     length_car = '0'+length_car
                 hash += length_car
 
-        #hh = hex(int(self.h0,2))[2:] + hex(int(self.h1,2))[2:] + hex(int(self.h2,2))[2:] + hex(int(self.h3,2))[2:]+ hex(int(self.h4,2))[2:]
-
-        print(hash)
+        print(hash) #Final Hash Output
 
 
 o = SHA_CLASS()
