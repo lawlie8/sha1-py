@@ -1,4 +1,3 @@
-import sys
 
 class operators():
     def truncate(data,leng):
